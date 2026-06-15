@@ -1,0 +1,45 @@
+auth:
+  database: kallpai
+  username: kallpai
+  # password se pasa con --set
+
+primary:
+  persistence:
+    enabled: true
+    size: 5Gi
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+  initdb:
+    scripts:
+      01-pgvector.sql: |
+        CREATE EXTENSION IF NOT EXISTS vector;
+
+        CREATE TABLE IF NOT EXISTS documents (
+          id         SERIAL PRIMARY KEY,
+          title      TEXT NOT NULL,
+          source     TEXT,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS document_chunks (
+          id          SERIAL PRIMARY KEY,
+          document_id INTEGER REFERENCES documents(id) ON DELETE CASCADE,
+          content     TEXT NOT NULL,
+          embedding   vector(1536),
+          chunk_index INTEGER,
+          created_at  TIMESTAMP DEFAULT NOW()
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_chunks_embedding
+          ON document_chunks
+          USING hnsw (embedding vector_cosine_ops);
+
+readReplicas:
+  replicaCount: 0
