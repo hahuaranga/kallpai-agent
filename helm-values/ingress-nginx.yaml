@@ -1,0 +1,14 @@
+controller:
+  service:
+    type: NodePort
+  config:
+    proxy-read-timeout: "300"
+    proxy-send-timeout: "300"
+    proxy-buffering: "off"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "200m"
