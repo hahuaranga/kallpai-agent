@@ -1,0 +1,50 @@
+# values.yaml — NO incluir secretos aquí, se inyectan con --set en deploy
+replicaCount: 1
+
+image:
+  repository: kallpai-agent
+  tag: latest
+  pullPolicy: Never          # imagen local del daemon de Minikube
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Configuración RAG (no sensible)
+rag:
+  embeddingModel: "text-embedding-3-small"
+  llmModel: "claude-haiku-4-5"
+  chunkSize: 500
+  chunkOverlap: 50
+  retrievalK: 5
+
+# CORS — dominios permitidos
+cors:
+  origins:
+    - "https://kallpai.com"
+    - "http://kallpai.local"
+
+# Valores sensibles — siempre vacíos aquí, se pasan con --set al instalar
+secrets:
+  openaiApiKey: ""
+  anthropicApiKey: ""
+  databaseUrl: ""
+
+probes:
+  liveness:
+    path: /health
+    initialDelaySeconds: 10
+    periodSeconds: 30
+  readiness:
+    path: /health
+    initialDelaySeconds: 5
+    periodSeconds: 10
